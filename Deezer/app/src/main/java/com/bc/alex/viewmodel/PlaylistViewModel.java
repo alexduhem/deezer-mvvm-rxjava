@@ -9,11 +9,25 @@ import com.bc.alex.model.rest.Track;
 import com.bc.alex.viewmodel.util.DurationFormatter;
 import com.bc.alex.viewmodel.util.NetworkChecker;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import io.reactivex.Observable;
 import io.reactivex.subjects.BehaviorSubject;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * Created by alex on 20/06/17.
@@ -27,6 +41,7 @@ public class PlaylistViewModel {
     private DurationFormatter formatter;
 
     private int offsetIndex;
+    private int total = -1;
 
     private BehaviorSubject<Boolean> loadingSubjects = BehaviorSubject.createDefault(false);
     private BehaviorSubject<ErrorViewHandler> errorSubject = BehaviorSubject.create();
@@ -48,10 +63,14 @@ public class PlaylistViewModel {
         return errorSubject;
     }
 
-    public Observable<List<Track>> loadTracks(Playlist playlist){
+    public Observable<List<Track>> loadTracks(Playlist playlist) {
+        if (offsetIndex >= total && total >= 0){
+            return Observable.empty();
+        }
         if (networkChecker.isNetworkAvailable()) {
             loadingSubjects.onNext(true);
             return service.getTrackForPlaylist(playlist.getId(), offsetIndex)
+                    .doOnNext(playlistTracksResponse -> total = playlistTracksResponse.getTotal())
                     .doOnNext(playlistTracksResponse -> handleNextUrl(playlistTracksResponse.getNext()))
                     .map(PlaylistTracksResponse::getTracks)
                     .flatMapIterable(list -> list)
@@ -69,11 +88,31 @@ public class PlaylistViewModel {
         }
     }
 
-    private void handleNextUrl(String url){
+    private void handleNextUrl(String query) {
+        if (query == null){
+            offsetIndex = total;
+            return;
+        }
+        Map<String, String> split = splitQuery(query);
+        offsetIndex = split.get("index") == null ? 0 : Integer.parseInt(split.get("index"));
 
     }
+    public static Map<String, String> splitQuery(String url)  {
+        Map<String, String> query_pairs = new LinkedHashMap<String, String>();
+        String[] pairs = url.split("\\?")[1].split("&");
+        for (String pair : pairs) {
+            int idx = pair.indexOf("=");
+            try {
+                query_pairs.put(URLDecoder.decode(pair.substring(0, idx), "UTF-8"),
+                        URLDecoder.decode(pair.substring(idx + 1), "UTF-8"));
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+        }
+        return query_pairs;
+    }
 
-    private void handleError(Throwable throwable){
+    private void handleError(Throwable throwable) {
 
     }
 }

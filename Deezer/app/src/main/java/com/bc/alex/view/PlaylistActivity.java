@@ -17,11 +17,13 @@ import com.bc.alex.R;
 import com.bc.alex.model.client.DeezerClientImpl;
 import com.bc.alex.model.rest.Playlist;
 import com.bc.alex.model.rest.Track;
+import com.bc.alex.view.adapter.TrackAdapter;
 import com.bc.alex.viewmodel.PlaylistViewModel;
 import com.bc.alex.viewmodel.util.AndroidNetworkChecker;
 import com.bc.alex.viewmodel.util.PlaylistDurationFormatter;
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.drawee.view.SimpleDraweeView;
+import com.jakewharton.rxbinding2.support.v7.widget.RxRecyclerView;
 import com.trello.rxlifecycle2.android.RxLifecycleAndroid;
 
 import java.util.ArrayList;
@@ -29,6 +31,8 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.reactivex.Completable;
+import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
 public class PlaylistActivity extends BaseActivity {
@@ -45,6 +49,7 @@ public class PlaylistActivity extends BaseActivity {
 
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
+    LinearLayoutManager layoutManager;
 
     ProgressBar progressBar;
 
@@ -52,6 +57,8 @@ public class PlaylistActivity extends BaseActivity {
 
     @BindView(R.id.imageViewHeader)
     SimpleDraweeView simpleDraweeView;
+
+    TrackAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,8 +72,10 @@ public class PlaylistActivity extends BaseActivity {
                 new PlaylistDurationFormatter());
         loadMoreTracks();
         simpleDraweeView.setImageURI(playlist.getPictureBigUrl());
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        layoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(layoutManager);
         setTitle(playlist.getTitle());
+
     }
 
     private void loadMoreTracks() {
@@ -76,49 +85,17 @@ public class PlaylistActivity extends BaseActivity {
                 .subscribe(
                         tracks -> {
                             Log.e("tracks", "tracks " + tracks);
-                            recyclerView.setAdapter(new TrackAdapter(tracks));
+                            if (adapter == null) {
+                                adapter = new TrackAdapter(tracks);
+                                disposables.add(adapter.getLastItemDisplayedSubject().subscribe(integer ->
+                                    loadMoreTracks()
+                                ));
+                                recyclerView.setAdapter(adapter);
+                            } else {
+                                ((TrackAdapter) recyclerView.getAdapter()).addTracks(tracks);
+                            }
                         }
                 ));
-    }
-
-    class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.TrackHolder> {
-
-        List<Track> tracks;
-
-        public TrackAdapter(List<Track> tracks) {
-            this.tracks = tracks;
-        }
-
-        @Override
-        public TrackHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            return new TrackHolder(LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.track_list_item, parent, false));
-        }
-
-        @Override
-        public void onBindViewHolder(TrackHolder holder, int position) {
-            holder.setTrack(tracks.get(position));
-        }
-
-        @Override
-        public int getItemCount() {
-            return tracks.size();
-        }
-
-        class TrackHolder extends RecyclerView.ViewHolder {
-
-            @BindView(R.id.text)
-            TextView textViewTitle;
-
-            public TrackHolder(View itemView) {
-                super(itemView);
-                ButterKnife.bind(this, itemView);
-            }
-
-            public void setTrack(Track track) {
-                textViewTitle.setText(track.getTitle());
-            }
-        }
     }
 
 
