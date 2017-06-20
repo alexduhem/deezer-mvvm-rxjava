@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Deezer</string>
+    <string name="Sorry_no_network">Sorry, no network available</string>
+    <string name="Woops_error_server">Woops, something went wrong with the server</string>
+</resources>
