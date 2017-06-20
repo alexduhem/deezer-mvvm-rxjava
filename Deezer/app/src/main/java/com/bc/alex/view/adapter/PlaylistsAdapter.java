@@ -6,13 +6,11 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.bc.alex.R;
-import com.bc.alex.model.rest.Playlist;
+import com.bc.alex.model.bean.Playlist;
 import com.bc.alex.view.itemview.PlaylistItemView;
 import com.jakewharton.rxbinding2.view.RxView;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Observable;
 
 import io.reactivex.subjects.BehaviorSubject;
 

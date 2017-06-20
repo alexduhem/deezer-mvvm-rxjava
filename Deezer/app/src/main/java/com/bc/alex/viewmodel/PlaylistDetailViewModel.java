@@ -2,32 +2,20 @@ package com.bc.alex.viewmodel;
 
 import com.bc.alex.model.api.PlaylistService;
 import com.bc.alex.model.client.DeezerClient;
-import com.bc.alex.model.rest.Playlist;
-import com.bc.alex.model.rest.PlaylistResponse;
-import com.bc.alex.model.rest.PlaylistTracksResponse;
-import com.bc.alex.model.rest.Track;
+import com.bc.alex.model.bean.Playlist;
+import com.bc.alex.model.bean.PlaylistTracksResponse;
+import com.bc.alex.model.bean.Track;
 import com.bc.alex.viewmodel.util.DurationFormatter;
 import com.bc.alex.viewmodel.util.NetworkChecker;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.net.URLDecoder;
-import java.util.AbstractMap;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import io.reactivex.Observable;
 import io.reactivex.subjects.BehaviorSubject;
-
-import static java.util.stream.Collectors.toList;
 
 /**
  * Created by alex on 20/06/17.

@@ -7,8 +7,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.bc.alex.R;
-import com.bc.alex.model.rest.Playlist;
-import com.bc.alex.model.rest.Track;
+import com.bc.alex.model.bean.Track;
 
 import java.util.List;
 

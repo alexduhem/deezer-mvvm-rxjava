@@ -2,12 +2,11 @@ package com.bc.alex.viewmodel;
 
 import com.bc.alex.model.api.PlaylistService;
 import com.bc.alex.model.client.DeezerClient;
-import com.bc.alex.model.rest.Playlist;
-import com.bc.alex.model.rest.PlaylistResponse;
+import com.bc.alex.model.bean.Playlist;
+import com.bc.alex.model.bean.PlaylistResponse;
 import com.bc.alex.viewmodel.util.DurationFormatter;
 import com.bc.alex.viewmodel.util.NetworkChecker;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.Observable;

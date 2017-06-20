@@ -12,8 +12,8 @@ import android.widget.TextView;
 
 import com.bc.alex.R;
 import com.bc.alex.model.client.DeezerClientImpl;
-import com.bc.alex.model.rest.Playlist;
-import com.bc.alex.model.rest.Track;
+import com.bc.alex.model.bean.Playlist;
+import com.bc.alex.model.bean.Track;
 import com.bc.alex.view.adapter.TrackAdapter;
 import com.bc.alex.viewmodel.ErrorViewHandler;
 import com.bc.alex.viewmodel.PlaylistDetailViewModel;

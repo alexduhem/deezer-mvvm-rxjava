@@ -1,10 +1,9 @@
 package com.bc.alex.model.api;
 
-import com.bc.alex.model.rest.PlaylistResponse;
-import com.bc.alex.model.rest.PlaylistTracksResponse;
+import com.bc.alex.model.bean.PlaylistResponse;
+import com.bc.alex.model.bean.PlaylistTracksResponse;
 
 import io.reactivex.Observable;
-import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Path;
 import retrofit2.http.Query;

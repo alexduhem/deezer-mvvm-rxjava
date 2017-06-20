@@ -1,4 +1,4 @@
-package com.bc.alex.model.rest;
+package com.bc.alex.model.bean;
 
 import com.google.gson.annotations.SerializedName;
 
