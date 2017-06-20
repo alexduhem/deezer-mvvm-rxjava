@@ -29,7 +29,6 @@ public class PlaylistViewModel {
     int offsetIndex;
 
     private BehaviorSubject<Boolean> loadingSubjects = BehaviorSubject.createDefault(false);
-    private BehaviorSubject<List<Track>> tracksSubjects = BehaviorSubject.createDefault(new ArrayList<>());
     private BehaviorSubject<ErrorViewHandler> errorSubject = BehaviorSubject.create();
 
     public PlaylistViewModel(DeezerClient deezerClient,
@@ -43,10 +42,6 @@ public class PlaylistViewModel {
 
     public BehaviorSubject<Boolean> getLoadingSubjects() {
         return loadingSubjects;
-    }
-
-    public BehaviorSubject<List<Track>> getTracksSubjects() {
-        return tracksSubjects;
     }
 
     public BehaviorSubject<ErrorViewHandler> getErrorSubject() {
@@ -66,9 +61,6 @@ public class PlaylistViewModel {
                     })
                     .toList()
                     .toObservable()
-                    .doOnNext(tracks -> {
-                        tracksSubjects.onNext(tracks);
-                    })
                     .doOnError(this::handleError)
                     .doOnComplete(() -> loadingSubjects.onNext(false));
         } else {
