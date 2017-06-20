@@ -8,8 +8,12 @@ import android.view.ViewGroup;
 import com.bc.alex.R;
 import com.bc.alex.model.rest.Playlist;
 import com.bc.alex.view.itemview.PlaylistItemView;
+import com.jakewharton.rxbinding2.view.RxView;
 
 import java.util.ArrayList;
+import java.util.Observable;
+
+import io.reactivex.subjects.BehaviorSubject;
 
 /**
  * Created by alex on 19/06/17.
@@ -18,15 +22,28 @@ import java.util.ArrayList;
 public class PlaylistsAdapter extends RecyclerView.Adapter<PlaylistsAdapter.PlaylistHolder> {
 
     ArrayList<Playlist> playlists;
+    BehaviorSubject<Playlist> itemClickSubject = BehaviorSubject.create();
+
 
     public PlaylistsAdapter(ArrayList<Playlist> playlists) {
         this.playlists = playlists;
     }
 
+    public BehaviorSubject<Playlist> getClickObservable(){
+        return itemClickSubject;
+    }
+
     @Override
     public PlaylistHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        return new PlaylistHolder(LayoutInflater.from(parent.getContext())
+        PlaylistHolder holder = new PlaylistHolder(LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.playlist_item_view, parent, false));
+        RxView.clicks(holder.itemView)
+                .takeUntil(RxView.detaches(parent))
+                .map(aVoid -> holder.itemView)
+                .cast(PlaylistItemView.class)
+                .map(PlaylistItemView::getPlaylist)
+                .subscribe(itemClickSubject);
+        return holder;
     }
 
     @Override

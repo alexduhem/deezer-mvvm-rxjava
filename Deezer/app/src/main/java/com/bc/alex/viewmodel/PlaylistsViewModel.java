@@ -23,7 +23,6 @@ public class PlaylistsViewModel {
     private NetworkChecker networkChecker;
 
     private BehaviorSubject<Boolean> loadingSubjects = BehaviorSubject.createDefault(false);
-    private BehaviorSubject<List<Playlist>> playlistSubjects = BehaviorSubject.createDefault(new ArrayList<>());
     private BehaviorSubject<ErrorViewHandler> errorSubject = BehaviorSubject.create();
 
     public PlaylistsViewModel(DeezerClient deezerClient, NetworkChecker networkChecker) {
@@ -45,9 +44,6 @@ public class PlaylistsViewModel {
             loadingSubjects.onNext(true);
             return playlistService.getPlaylists(1839834)
                     .map(PlaylistResponse::getPlaylists)
-                    .doOnNext(playlists -> {
-                        playlistSubjects.onNext(playlists);
-                    })
                     .doOnNext(playlists -> {
                         if (playlists.isEmpty()) {
                             errorSubject.onNext(new ErrorViewHandler(ErrorViewHandler.ERROR_EMPTY));

@@ -50,4 +50,8 @@ public class PlaylistItemView extends RelativeLayout {
         textViewTitle.setText(playlist.getTitle());
         imageView.setImageURI(playlist.getPictureMediumUrl());
     }
+
+    public Playlist getPlaylist() {
+        return playlist;
+    }
 }

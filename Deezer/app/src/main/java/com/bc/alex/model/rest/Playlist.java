@@ -1,12 +1,15 @@
 package com.bc.alex.model.rest;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.annotations.SerializedName;
 
 /**
  * Created by alex on 19/06/17.
  */
 
-public class Playlist {
+public class Playlist implements Parcelable{
     int id;
     String title;
     String description;
@@ -23,6 +26,32 @@ public class Playlist {
     String pictureMediumUrl;
     @SerializedName("picture_big")
     String pictureBigUrl;
+
+    protected Playlist(Parcel in) {
+        id = in.readInt();
+        title = in.readString();
+        description = in.readString();
+        duration = in.readInt();
+        formattedDuration = in.readString();
+        isPublic = in.readByte() != 0;
+        trackNumber = in.readInt();
+        pictureUrl = in.readString();
+        pictureSmallUrl = in.readString();
+        pictureMediumUrl = in.readString();
+        pictureBigUrl = in.readString();
+    }
+
+    public static final Creator<Playlist> CREATOR = new Creator<Playlist>() {
+        @Override
+        public Playlist createFromParcel(Parcel in) {
+            return new Playlist(in);
+        }
+
+        @Override
+        public Playlist[] newArray(int size) {
+            return new Playlist[size];
+        }
+    };
 
     public int getId() {
         return id;
@@ -62,5 +91,25 @@ public class Playlist {
 
     public String getPictureBigUrl() {
         return pictureBigUrl;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(id);
+        dest.writeString(title);
+        dest.writeString(description);
+        dest.writeInt(duration);
+        dest.writeString(formattedDuration);
+        dest.writeByte((byte) (isPublic ? 1 : 0));
+        dest.writeInt(trackNumber);
+        dest.writeString(pictureUrl);
+        dest.writeString(pictureSmallUrl);
+        dest.writeString(pictureMediumUrl);
+        dest.writeString(pictureBigUrl);
     }
 }

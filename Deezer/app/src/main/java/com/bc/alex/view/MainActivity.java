@@ -9,11 +9,16 @@ import android.widget.TextView;
 
 import com.bc.alex.R;
 import com.bc.alex.model.client.DeezerClientImpl;
+import com.bc.alex.model.rest.Playlist;
 import com.bc.alex.view.adapter.PlaylistsAdapter;
 import com.bc.alex.viewmodel.ErrorViewHandler;
 import com.bc.alex.viewmodel.PlaylistsViewModel;
 import com.bc.alex.viewmodel.util.AndroidNetworkChecker;
 import com.facebook.drawee.backends.pipeline.Fresco;
+import com.jakewharton.rxbinding2.support.v7.widget.RxRecyclerView;
+import com.jakewharton.rxbinding2.support.v7.widget.RxRecyclerViewAdapter;
+import com.jakewharton.rxbinding2.widget.RxAdapter;
+import com.jakewharton.rxbinding2.widget.RxAdapterView;
 import com.trello.rxlifecycle2.android.RxLifecycleAndroid;
 
 import butterknife.BindView;
@@ -53,12 +58,18 @@ public class MainActivity extends BaseActivity {
         );
         loadPlaylist();
         recyclerView.setLayoutManager(new GridLayoutManager(this, getResources().getInteger(R.integer.grid_column_number)));
+
     }
 
     private void loadPlaylist() {
         disposables.add(playlistsViewModel.loadPlaylists().observeOn(AndroidSchedulers.mainThread())
+                .compose(RxLifecycleAndroid.bindActivity(lifecycle()))
                 .subscribe(playlists -> {
-                    recyclerView.setAdapter(new PlaylistsAdapter(playlists));
+                    PlaylistsAdapter adapter = new PlaylistsAdapter(playlists);
+                    disposables.add(adapter.getClickObservable().subscribe(playlist -> {
+                        PlaylistActivity.show(this, playlist);
+                    }));
+                    recyclerView.setAdapter(adapter);
                 }));
     }
 
