@@ -26,6 +26,9 @@ public class Playlist implements Parcelable{
     String pictureMediumUrl;
     @SerializedName("picture_big")
     String pictureBigUrl;
+    @SerializedName("creator")
+    DeezerCreator creator;
+
 
     protected Playlist(Parcel in) {
         id = in.readInt();
@@ -39,6 +42,7 @@ public class Playlist implements Parcelable{
         pictureSmallUrl = in.readString();
         pictureMediumUrl = in.readString();
         pictureBigUrl = in.readString();
+        creator = in.readParcelable(DeezerCreator.class.getClassLoader());
     }
 
     public static final Creator<Playlist> CREATOR = new Creator<Playlist>() {
@@ -52,6 +56,12 @@ public class Playlist implements Parcelable{
             return new Playlist[size];
         }
     };
+
+    public void setFormattedDuration(String formattedDuration) {
+        this.formattedDuration = formattedDuration;
+    }
+
+
 
     public int getId() {
         return id;
@@ -100,6 +110,7 @@ public class Playlist implements Parcelable{
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+
         dest.writeInt(id);
         dest.writeString(title);
         dest.writeString(description);
@@ -111,5 +122,14 @@ public class Playlist implements Parcelable{
         dest.writeString(pictureSmallUrl);
         dest.writeString(pictureMediumUrl);
         dest.writeString(pictureBigUrl);
+        dest.writeParcelable(creator, flags);
+    }
+
+    public DeezerCreator getCreator() {
+        return creator;
+    }
+
+    public String getFormattedDuration() {
+        return formattedDuration;
     }
 }

@@ -4,6 +4,7 @@ import com.bc.alex.model.api.PlaylistService;
 import com.bc.alex.model.client.DeezerClient;
 import com.bc.alex.model.rest.Playlist;
 import com.bc.alex.model.rest.PlaylistResponse;
+import com.bc.alex.viewmodel.util.DurationFormatter;
 import com.bc.alex.viewmodel.util.NetworkChecker;
 
 import java.util.ArrayList;
@@ -21,14 +22,18 @@ public class PlaylistsViewModel {
     private DeezerClient deezerClient;
     private PlaylistService playlistService;
     private NetworkChecker networkChecker;
+    private DurationFormatter formatter;
+
+    private static final int USER_ID = 5;
 
     private BehaviorSubject<Boolean> loadingSubjects = BehaviorSubject.createDefault(false);
     private BehaviorSubject<ErrorViewHandler> errorSubject = BehaviorSubject.create();
 
-    public PlaylistsViewModel(DeezerClient deezerClient, NetworkChecker networkChecker) {
+    public PlaylistsViewModel(DeezerClient deezerClient, NetworkChecker networkChecker, DurationFormatter formatter) {
         this.deezerClient = deezerClient;
         this.networkChecker = networkChecker;
         playlistService = deezerClient.provideClient().create(PlaylistService.class);
+        this.formatter = formatter;
     }
 
     public Observable<Boolean> getLoadingSubjects() {
@@ -39,11 +44,18 @@ public class PlaylistsViewModel {
         return errorSubject;
     }
 
-    public Observable<ArrayList<Playlist>> loadPlaylists() {
+    public Observable<List<Playlist>> loadPlaylists() {
         if (networkChecker.isNetworkAvailable()) {
             loadingSubjects.onNext(true);
-            return playlistService.getPlaylists(16882878)
+            return playlistService.getPlaylists(USER_ID)
                     .map(PlaylistResponse::getPlaylists)
+                    .flatMapIterable(list -> list)
+                    .map(playlist -> {
+                        playlist.setFormattedDuration(formatter.formatDuration(playlist.getDuration()));
+                        return playlist;
+                    })
+                    .toList()
+                    .toObservable()
                     .doOnNext(playlists -> {
                         if (playlists.isEmpty()) {
                             errorSubject.onNext(new ErrorViewHandler(ErrorViewHandler.ERROR_EMPTY));

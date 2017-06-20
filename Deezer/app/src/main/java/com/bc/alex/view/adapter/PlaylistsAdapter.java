@@ -11,6 +11,7 @@ import com.bc.alex.view.itemview.PlaylistItemView;
 import com.jakewharton.rxbinding2.view.RxView;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Observable;
 
 import io.reactivex.subjects.BehaviorSubject;
@@ -21,11 +22,11 @@ import io.reactivex.subjects.BehaviorSubject;
 
 public class PlaylistsAdapter extends RecyclerView.Adapter<PlaylistsAdapter.PlaylistHolder> {
 
-    ArrayList<Playlist> playlists;
+    List<Playlist> playlists;
     BehaviorSubject<Playlist> itemClickSubject = BehaviorSubject.create();
 
 
-    public PlaylistsAdapter(ArrayList<Playlist> playlists) {
+    public PlaylistsAdapter(List<Playlist> playlists) {
         this.playlists = playlists;
     }
 

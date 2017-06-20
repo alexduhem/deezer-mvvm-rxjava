@@ -13,6 +13,7 @@
         android:layout_centerInParent="true"
         tools:text="Coucou" />
 
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"

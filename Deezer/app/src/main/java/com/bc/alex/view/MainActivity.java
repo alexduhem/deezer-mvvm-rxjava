@@ -9,16 +9,12 @@ import android.widget.TextView;
 
 import com.bc.alex.R;
 import com.bc.alex.model.client.DeezerClientImpl;
-import com.bc.alex.model.rest.Playlist;
 import com.bc.alex.view.adapter.PlaylistsAdapter;
 import com.bc.alex.viewmodel.ErrorViewHandler;
 import com.bc.alex.viewmodel.PlaylistsViewModel;
 import com.bc.alex.viewmodel.util.AndroidNetworkChecker;
+import com.bc.alex.viewmodel.util.PlaylistDurationFormatter;
 import com.facebook.drawee.backends.pipeline.Fresco;
-import com.jakewharton.rxbinding2.support.v7.widget.RxRecyclerView;
-import com.jakewharton.rxbinding2.support.v7.widget.RxRecyclerViewAdapter;
-import com.jakewharton.rxbinding2.widget.RxAdapter;
-import com.jakewharton.rxbinding2.widget.RxAdapterView;
 import com.trello.rxlifecycle2.android.RxLifecycleAndroid;
 
 import butterknife.BindView;
@@ -44,7 +40,15 @@ public class MainActivity extends BaseActivity {
         Fresco.initialize(this);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-        playlistsViewModel = new PlaylistsViewModel(new DeezerClientImpl(), new AndroidNetworkChecker(this));
+        playlistsViewModel = new PlaylistsViewModel(new DeezerClientImpl(),
+                new AndroidNetworkChecker(this),
+                new PlaylistDurationFormatter());
+        recyclerView.setLayoutManager(new GridLayoutManager(this, getResources().getInteger(R.integer.grid_column_number)));
+        initBindings();
+        loadPlaylist();
+    }
+
+    private void initBindings() {
         disposables.add(playlistsViewModel.getLoadingSubjects()
                 .compose(RxLifecycleAndroid.bindActivity(lifecycle()))
                 .cast(Boolean.class)
@@ -56,9 +60,6 @@ public class MainActivity extends BaseActivity {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::displayError)
         );
-        loadPlaylist();
-        recyclerView.setLayoutManager(new GridLayoutManager(this, getResources().getInteger(R.integer.grid_column_number)));
-
     }
 
     private void loadPlaylist() {
@@ -67,7 +68,7 @@ public class MainActivity extends BaseActivity {
                 .subscribe(playlists -> {
                     PlaylistsAdapter adapter = new PlaylistsAdapter(playlists);
                     disposables.add(adapter.getClickObservable().subscribe(playlist -> {
-                        PlaylistActivity.show(this, playlist);
+                        PlaylistDetailActivity.show(this, playlist);
                     }));
                     recyclerView.setAdapter(adapter);
                 }));

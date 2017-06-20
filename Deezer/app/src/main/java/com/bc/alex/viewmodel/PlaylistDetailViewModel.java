@@ -33,7 +33,7 @@ import static java.util.stream.Collectors.toList;
  * Created by alex on 20/06/17.
  */
 
-public class PlaylistViewModel {
+public class PlaylistDetailViewModel {
 
     private DeezerClient deezerClient;
     private NetworkChecker networkChecker;
@@ -46,9 +46,9 @@ public class PlaylistViewModel {
     private BehaviorSubject<Boolean> loadingSubjects = BehaviorSubject.createDefault(false);
     private BehaviorSubject<ErrorViewHandler> errorSubject = BehaviorSubject.create();
 
-    public PlaylistViewModel(DeezerClient deezerClient,
-                             NetworkChecker networkChecker,
-                             DurationFormatter formatter) {
+    public PlaylistDetailViewModel(DeezerClient deezerClient,
+                                   NetworkChecker networkChecker,
+                                   DurationFormatter formatter) {
         this.deezerClient = deezerClient;
         this.networkChecker = networkChecker;
         this.formatter = formatter;
@@ -64,11 +64,15 @@ public class PlaylistViewModel {
     }
 
     public Observable<List<Track>> loadTracks(Playlist playlist) {
+        //if there's nothing more to download well... we don't call the api
         if (offsetIndex >= total && total >= 0){
             return Observable.empty();
         }
         if (networkChecker.isNetworkAvailable()) {
-            loadingSubjects.onNext(true);
+            if (offsetIndex == 0) {
+                //we just display the progress bar for the first download
+                loadingSubjects.onNext(true);
+            }
             return service.getTrackForPlaylist(playlist.getId(), offsetIndex)
                     .doOnNext(playlistTracksResponse -> total = playlistTracksResponse.getTotal())
                     .doOnNext(playlistTracksResponse -> handleNextUrl(playlistTracksResponse.getNext()))
@@ -90,6 +94,7 @@ public class PlaylistViewModel {
 
     private void handleNextUrl(String query) {
         if (query == null){
+            //at the end of the playlist, we have no "next url"
             offsetIndex = total;
             return;
         }
@@ -97,22 +102,32 @@ public class PlaylistViewModel {
         offsetIndex = split.get("index") == null ? 0 : Integer.parseInt(split.get("index"));
 
     }
-    public static Map<String, String> splitQuery(String url)  {
-        Map<String, String> query_pairs = new LinkedHashMap<String, String>();
+
+    /**
+     * I don't like this code, but I don't like the "next" url in the output of Deezer API.
+     * I just take this code on stackoverflow quickly to parse an api and retrieve the index
+     * @param url
+     * @return
+     */
+    private Map<String, String> splitQuery(String url)  {
+        Map<String, String> queryPairs = new LinkedHashMap<String, String>();
         String[] pairs = url.split("\\?")[1].split("&");
         for (String pair : pairs) {
             int idx = pair.indexOf("=");
             try {
-                query_pairs.put(URLDecoder.decode(pair.substring(0, idx), "UTF-8"),
+                queryPairs.put(URLDecoder.decode(pair.substring(0, idx), "UTF-8"),
                         URLDecoder.decode(pair.substring(idx + 1), "UTF-8"));
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
         }
-        return query_pairs;
+        return queryPairs;
     }
 
     private void handleError(Throwable throwable) {
-
+        if (offsetIndex > 0){
+            //same as loading, we dont display the error if we already got a list
+            errorSubject.onNext(new ErrorViewHandler(throwable));
+        }
     }
 }
