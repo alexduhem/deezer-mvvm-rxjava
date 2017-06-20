@@ -21,12 +21,12 @@ import io.reactivex.subjects.BehaviorSubject;
 
 public class PlaylistViewModel {
 
-    DeezerClient deezerClient;
-    NetworkChecker networkChecker;
-    PlaylistService service;
-    DurationFormatter formatter;
+    private DeezerClient deezerClient;
+    private NetworkChecker networkChecker;
+    private PlaylistService service;
+    private DurationFormatter formatter;
 
-    int offsetIndex;
+    private int offsetIndex;
 
     private BehaviorSubject<Boolean> loadingSubjects = BehaviorSubject.createDefault(false);
     private BehaviorSubject<ErrorViewHandler> errorSubject = BehaviorSubject.create();
